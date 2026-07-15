@@ -3,10 +3,15 @@ await RunCountdownAsync(seconds);
 
 static int ReadSeconds()
 {
+    const int defaultSeconds = 5;
     while (true)
     {
-        Console.Write("Enter countdown seconds: ");
+        Console.Write($"Enter countdown seconds (default {defaultSeconds}): ");
         var input = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return defaultSeconds;
+        }
         if (int.TryParse(input, out int value) && value > 0)
         {
             return value;
