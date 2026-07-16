@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>井字棋 Tic-Tac-Toe</title>
+<style>
+  :root {
+    --bg: #1a1b26;
+    --panel: #24263a;
+    --board: #2d3047;
+    --cell: #33364f;
+    --cell-hover: #3d4166;
+    --x-color: #6ee7ff;
+    --o-color: #ff9f6e;
+    --win: #7ee787;
+    --text: #e8e9f3;
+    --muted: #9a9cc0;
+    --accent: #8b7cf6;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 30% 20%, #262845, var(--bg) 60%);
+    font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+    color: var(--text);
+  }
+
+  .app {
+    background: var(--panel);
+    border-radius: 20px;
+    padding: 32px 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    width: 380px;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 26px;
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .scoreboard {
+    display: flex;
+    justify-content: space-between;
+    background: var(--board);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+  }
+
+  .score {
+    flex: 1;
+    padding: 6px 4px;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+
+  .score.active {
+    background: rgba(139, 124, 246, 0.25);
+  }
+
+  .score .label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .score.x-score .value { color: var(--x-color); }
+  .score.o-score .value { color: var(--o-color); }
+  .score.draw-score .value { color: var(--muted); }
+
+  .score .value {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .status {
+    margin-bottom: 18px;
+    font-size: 16px;
+    min-height: 24px;
+    font-weight: 600;
+  }
+
+  .status .turn-x { color: var(--x-color); }
+  .status .turn-o { color: var(--o-color); }
+  .status .win-text { color: var(--win); }
+  .status .draw-text { color: var(--muted); }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    background: var(--board);
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .cell {
+    aspect-ratio: 1 / 1;
+    background: var(--cell);
+    border: none;
+    border-radius: 10px;
+    font-size: 44px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .cell:hover:not(:disabled) {
+    background: var(--cell-hover);
+  }
+
+  .cell:disabled {
+    cursor: default;
+  }
+
+  .cell.x { color: var(--x-color); }
+  .cell.o { color: var(--o-color); }
+
+  .cell.win-cell {
+    background: rgba(126, 231, 135, 0.25);
+    color: var(--win) !important;
+  }
+
+  .cell.pop {
+    animation: pop 0.18s ease;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.6); }
+    to { transform: scale(1); }
+  }
+
+  .controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+
+  button.action {
+    flex: 1;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.05s;
+  }
+
+  button.action:active {
+    transform: scale(0.97);
+  }
+
+  .btn-restart {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-reset {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--cell);
+  }
+
+  button.action:hover {
+    filter: brightness(1.1);
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <h1>井字棋</h1>
+    <div class="subtitle">Tic-Tac-Toe · 双人对战</div>
+
+    <div class="scoreboard">
+      <div class="score x-score" id="scoreX">
+        <div class="label">玩家 X</div>
+        <div class="value" id="scoreXVal">0</div>
+      </div>
+      <div class="score draw-score" id="scoreDraw">
+        <div class="label">平局</div>
+        <div class="value" id="scoreDrawVal">0</div>
+      </div>
+      <div class="score o-score" id="scoreO">
+        <div class="label">玩家 O</div>
+        <div class="value" id="scoreOVal">0</div>
+      </div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="board" id="board"></div>
+
+    <div class="controls">
+      <button class="action btn-restart" id="restartBtn">再来一局</button>
+      <button class="action btn-reset" id="resetBtn">清空比分</button>
+    </div>
+  </div>
+
+<script>
+  const WIN_LINES = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+
+  const boardEl = document.getElementById('board');
+  const statusEl = document.getElementById('status');
+  const restartBtn = document.getElementById('restartBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const scoreXVal = document.getElementById('scoreXVal');
+  const scoreOVal = document.getElementById('scoreOVal');
+  const scoreDrawVal = document.getElementById('scoreDrawVal');
+  const scoreXEl = document.getElementById('scoreX');
+  const scoreOEl = document.getElementById('scoreO');
+
+  let cells = Array(9).fill(null);
+  let currentPlayer = 'X';
+  let gameOver = false;
+  let scores = { X: 0, O: 0, draw: 0 };
+
+  function renderBoard() {
+    boardEl.innerHTML = '';
+    cells.forEach((val, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'cell' + (val ? ' ' + val.toLowerCase() : '');
+      btn.textContent = val || '';
+      btn.disabled = !!val || gameOver;
+      btn.addEventListener('click', () => handleMove(i));
+      boardEl.appendChild(btn);
+    });
+  }
+
+  function updateStatus() {
+    if (gameOver) return;
+    const cls = currentPlayer === 'X' ? 'turn-x' : 'turn-o';
+    statusEl.innerHTML = `轮到 <span class="${cls}">玩家 ${currentPlayer}</span>`;
+    scoreXEl.classList.toggle('active', currentPlayer === 'X');
+    scoreOEl.classList.toggle('active', currentPlayer === 'O');
+  }
+
+  function checkWinner() {
+    for (const line of WIN_LINES) {
+      const [a, b, c] = line;
+      if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+        return { player: cells[a], line };
+      }
+    }
+    if (cells.every(c => c !== null)) {
+      return { player: null, line: null, draw: true };
+    }
+    return null;
+  }
+
+  function handleMove(index) {
+    if (cells[index] || gameOver) return;
+    cells[index] = currentPlayer;
+    renderBoard();
+
+    const btn = boardEl.children[index];
+    btn.classList.add('pop');
+
+    const result = checkWinner();
+    if (result) {
+      gameOver = true;
+      scoreXEl.classList.remove('active');
+      scoreOEl.classList.remove('active');
+      if (result.draw) {
+        statusEl.innerHTML = `<span class="draw-text">平局！</span>`;
+        scores.draw++;
+        scoreDrawVal.textContent = scores.draw;
+      } else {
+        statusEl.innerHTML = `<span class="win-text">玩家 ${result.player} 获胜！</span>`;
+        result.line.forEach(i => boardEl.children[i].classList.add('win-cell'));
+        scores[result.player]++;
+        (result.player === 'X' ? scoreXVal : scoreOVal).textContent = scores[result.player];
+      }
+      disableAll();
+      return;
+    }
+
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    updateStatus();
+  }
+
+  function disableAll() {
+    [...boardEl.children].forEach(btn => btn.disabled = true);
+  }
+
+  function startNewRound() {
+    cells = Array(9).fill(null);
+    currentPlayer = 'X';
+    gameOver = false;
+    renderBoard();
+    updateStatus();
+  }
+
+  function resetScores() {
+    scores = { X: 0, O: 0, draw: 0 };
+    scoreXVal.textContent = 0;
+    scoreOVal.textContent = 0;
+    scoreDrawVal.textContent = 0;
+    startNewRound();
+  }
+
+  restartBtn.addEventListener('click', startNewRound);
+  resetBtn.addEventListener('click', resetScores);
+
+  startNewRound();
+</script>
+</body>
+</html>
