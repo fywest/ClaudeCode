@@ -27,13 +27,13 @@ A single-page, browser-based Tic-Tac-Toe (井字棋) game for two local players,
 - Once a round ends (win or draw), no further moves are accepted until the board is reset.
 
 ## UI Components
-- **Title header**: "井字棋" / "Tic-Tac-Toe · 双人对战".
-- **Scoreboard**: three counters — Player X wins, Draws, Player O wins. The active player's counter is visually highlighted while the round is in progress.
-- **Status line**: shows whose turn it is, or the round result ("玩家 X 获胜！" / "平局！").
-- **Board**: 9 clickable cells. Filled cells are disabled. On win, the 3 winning cells are highlighted distinctly from the rest.
+- **Title header**: "TIC · TAC · TOE" / "Two players, one board".
+- **Scoreboard**: three counters — Player X wins, Draws, Player O wins. The active player's counter is visually highlighted (with a soft glow) while the round is in progress.
+- **Status line**: shows whose turn it is ("Turn: Player X"), or the round result ("Player X wins!" / "It's a draw!").
+- **Board**: 9 clickable cells. Filled cells are disabled. On win, the 3 winning cells are highlighted with a pulsing glow distinct from the rest.
 - **Controls**:
-  - "再来一局" (Play Again) — clears the board and starts a new round, keeping cumulative scores.
-  - "清空比分" (Reset Scores) — resets all scores to 0 and starts a new round.
+  - "Play Again" — clears the board and starts a new round, keeping cumulative scores.
+  - "Reset Scores" — resets all scores to 0 and starts a new round.
 
 ## Behavior Details
 - Clicking an already-filled cell, or clicking any cell after the round has ended, has no effect.
@@ -42,9 +42,12 @@ A single-page, browser-based Tic-Tac-Toe (井字棋) game for two local players,
 - Winning line cells receive a distinct highlight color separate from the normal X/O colors.
 
 ## Visual Design
-- Dark theme (`#1a1b26` background) with a centered card-style panel.
-- Distinct colors per role: cyan for X, orange for O, green for win highlights, muted purple/gray for neutral text and draws.
-- Responsive card layout (fixed ~380px width), rounded corners, subtle shadows, hover states on interactive cells and buttons.
+- Dark, gradient-mesh background (deep indigo/violet radial glows over a diagonal gradient) with a centered glassmorphic card (`backdrop-filter: blur`, translucent panel, subtle border).
+- Gradient-clipped title text (violet → blue → pink).
+- Distinct glowing colors per role: cyan for X, pink for O, green for win highlights (each with a matching `text-shadow` glow), muted lavender-gray for neutral text and draws.
+- Winning cells pulse with an animated glow; new marks pop in with a bouncy scale-in animation.
+- Gradient-filled primary button ("Play Again") with hover lift/glow; secondary button ("Reset Scores") is a subtle outlined/ghost style.
+- Responsive card layout (fixed ~400px width), rounded corners, layered shadows, hover states on interactive cells and buttons.
 
 ## Technical Notes
 - Single file: `index.html` (HTML + `<style>` + `<script>`, no external assets or libraries).
